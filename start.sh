@@ -1,0 +1,1 @@
+gcc -O2 -Wextra -std=c11 main.c -o main
