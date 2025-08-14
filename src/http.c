@@ -58,6 +58,7 @@ int handle_request(int client_fd, char* buffer) {
     } else {
       strcpy(filename, "404.html");
     }
+    
     printf("Serving file: %s\n", filename);
     build_response(filename, fullresponse);
     int bytes = send(client_fd, fullresponse, strlen(fullresponse), 0);
