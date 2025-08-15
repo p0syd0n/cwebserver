@@ -11,8 +11,24 @@
 #include "src/config.h"
 #include "src/http.c"
 
-int main() {
-
+int main(int argc, char** argv) {
+    printf("-----p0syd0n's HTTP server-----\n\n");
+    printf("Command line parameters enabled?: %d\n", USEPARAMS);
+    if (USEPARAMS == 0) {
+        printf("!!        This is a test build        !!\n");
+        printf("!! Using default ( compiled ) options !!\n");
+        printf("Routes: %d\n", ROUTES);
+        printf("List Files: %d\n", LISTFILES);
+    } else if (USEPARAMS == 1 && argc != 3) {
+        printf("Usage: %s <routes> <listfiles>\n\n", argv[0]);
+        printf("<routes> : Whether the server should use pre-compiled routes instead of just serving files\n");
+        printf("<listfiles> : Whether the server should display a list of files if no filename is provided in the request\n");
+        exit(0);
+    } else if (USEPARAMS == 1 && argc == 3) {
+        printf("Routes: %d\n", *argv[1] - '0');
+        printf("List Files: %d\n", *argv[2] - '0');
+    }
+    printf("\n-------------------------------\n\n\n\n\n");
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (server_fd < 0) {
@@ -59,7 +75,7 @@ int main() {
 
         if (n > 0) {
             buf[n] = '\0';
-            handle_request(client_fd, buf);
+            handle_request(client_fd, buf, argv[1], argv[2]);
             close(client_fd);
         }
 

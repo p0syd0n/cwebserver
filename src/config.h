@@ -6,3 +6,8 @@
 #define MAXHEADERSIZE 1024
 #define MAXFILENAME 25
 #define HTMLPATH "public/"
+
+#define USEPARAMS 0
+
+#define ROUTES 0
+#define LISTFILES 1
