@@ -7,7 +7,7 @@
 #define MAXFILENAME 25
 #define HTMLPATH "public/"
 
-#define USEPARAMS 0
+#define USEPARAMS 1
 
 #define ROUTES 0
 #define LISTFILES 1
