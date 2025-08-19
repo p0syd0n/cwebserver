@@ -5,7 +5,8 @@
 //   unsigned long example = hash_djb2("hello");
 //   printf("%lx\n", example);
 
-//   Bucket** hashtable = create_hashtable();
+//   Hashtable* hashtable = create_hashtable(100000);
+
 //   printf("Hashtable start address: %p\n", (void*)hashtable);
 //   table_add(hashtable, "key", "value");
 //   table_add(hashtable, "beans", "cheese");
@@ -24,16 +25,19 @@
 //   table_remove(hashtable, "bedafasfsfgfsg");
 
 // }
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "src/hashtable.c" // your library
 
 #define ENTRIES 5000000
+#define SIZE 10000000
 
 int main() {
     srand(time(NULL));
-    Bucket** table = create_hashtable();
+    Hashtable* table = create_hashtable(SIZE);
 
     int inserts = 0;
     int gets = 0;

@@ -23,30 +23,30 @@ typedef struct Bucket {
   struct Bucket* next;
   struct Bucket* previous;
 } Bucket;
+typedef struct Hashtable {
+  size_t size;
+  Bucket** table;
+} Hashtable;
 
+Hashtable* create_hashtable(size_t size) {
+  Hashtable* hashtable = (Hashtable*)malloc(sizeof(Hashtable));
 
-int print_bucket(Bucket* bucket) {
-  printf("Printing:\n");
+  Bucket** thetable = calloc(size, sizeof(Bucket*));
+  hashtable->table = thetable;
+  hashtable->size = size;
 
-  printf("Key: %s\nValue: %s\nnext: %s\nprevious:%s\n", bucket->key, bucket->value, (char*)bucket->next, (char*)bucket->previous);
-  return 0;
-}
-
-Bucket** create_hashtable() {
-  Bucket** hashtable = calloc(TABLESIZE, sizeof(Bucket*));
-  printf("Hashtable starts at: %p\n", (void*)hashtable);
   return hashtable;
 }
 
-int table_add(struct Bucket** hashtable, char* key, char* value) {
+int table_add(Hashtable* hashtable, char* key, char* value) {
   unsigned long hash = hash_djb2(key);
-  int dictionary_index = hash % TABLESIZE;
+  int dictionary_index = hash % (hashtable->size);
 
-  Bucket* tempbucket = hashtable[dictionary_index];
+  Bucket* tempbucket = (hashtable->table)[dictionary_index];
   
   if (tempbucket == NULL) {
-    hashtable[dictionary_index] = (Bucket*)malloc(sizeof(Bucket));
-    tempbucket = hashtable[dictionary_index];
+    (hashtable->table)[dictionary_index] = (Bucket*)malloc(sizeof(Bucket));
+    tempbucket = (hashtable->table)[dictionary_index];
     tempbucket->key = strdup(key);
     tempbucket->value = strdup(value);
     tempbucket->next = NULL;
@@ -74,10 +74,10 @@ int table_add(struct Bucket** hashtable, char* key, char* value) {
   return 0;
 }
 
-int table_remove(Bucket** hashtable, char* key) {
+int table_remove(Hashtable* hashtable, char* key) {
   unsigned long hash = hash_djb2(key);
-  int dictionary_index = hash % TABLESIZE;
-  Bucket* tempbucket = hashtable[dictionary_index];
+  int dictionary_index = hash % (hashtable->size);
+  Bucket* tempbucket = (hashtable->table)[dictionary_index];
 
   if (tempbucket == NULL) { errno = ENOENT; return -1; }
 
@@ -90,14 +90,14 @@ int table_remove(Bucket** hashtable, char* key) {
   }
 
   if (tempbucket->previous == NULL && tempbucket->next == NULL) {
-    hashtable[dictionary_index] = NULL;
+    (hashtable->table)[dictionary_index] = NULL;
 
   } else if (tempbucket->next != NULL && tempbucket->previous != NULL) {
     (tempbucket->next)->previous = tempbucket->previous;
     (tempbucket->previous)->next = tempbucket->next;
 
   } else if (tempbucket->next != NULL && tempbucket->previous == NULL) {
-    hashtable[dictionary_index] = tempbucket->next;
+    (hashtable->table)[dictionary_index] = tempbucket->next;
     (tempbucket->next)->previous = NULL;
 
   }  else if (tempbucket->next == NULL && tempbucket->previous != NULL) {
@@ -116,11 +116,11 @@ int table_remove(Bucket** hashtable, char* key) {
   return 0;
 }
 
-char* table_get(Bucket** hashtable, char* key) {
+char* table_get(Hashtable* hashtable, char* key) {
   unsigned long hash = hash_djb2(key);
-  int dictionary_index = hash % TABLESIZE;
+  int dictionary_index = hash % (hashtable->size);
 
-  Bucket* tempbucket = hashtable[dictionary_index];
+  Bucket* tempbucket = (hashtable->table)[dictionary_index];
 
   while (tempbucket != NULL) {
     if (strcmp(tempbucket->key, key) == 0) {
@@ -131,4 +131,20 @@ char* table_get(Bucket** hashtable, char* key) {
 
   errno = ENOENT;
   return NULL;
+}
+
+
+void free_hashtable(Hashtable* hashtable) {
+    for (size_t i = 0; i < hashtable->size; i++) {
+        Bucket* bucket = hashtable->table[i];
+        while (bucket) {
+            Bucket* next = bucket->next;
+            free(bucket->key);
+            free(bucket->value);
+            free(bucket);
+            bucket = next;
+        }
+    }
+    free(hashtable->table);
+    free(hashtable);
 }
